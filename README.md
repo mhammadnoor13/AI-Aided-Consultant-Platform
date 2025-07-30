@@ -90,9 +90,9 @@ project-root/
 6. **Access the services** at URLs and ports defined in `docker-compose.yml`:
    - Front‑end: http://localhost:3000
    - Gateway:   http://localhost:5100
-   - Case API:  http://localhost:5010
-   - Consultant API: http://localhost:5020
-   - Auth API:  http://localhost:5030
+   - Case :  http://localhost:5010
+   - Consultant : http://localhost:5020
+   - Auth :  http://localhost:5030
    - AI Service: http://localhost:5040
    - Embedding Service: http://localhost:5050
 
