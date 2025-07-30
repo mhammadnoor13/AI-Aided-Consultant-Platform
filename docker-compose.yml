@@ -1,0 +1,172 @@
+version: "3.9"
+
+x-rabbitmq-defaults: &rabbitmq-defaults
+  MessageBroker__Host:          rabbitmq://rabbitmq
+  MessageBroker__Username:      guest
+  MessageBroker__Password:      guest
+
+  MassTransit__RabbitMq__Host:      rabbitmq://rabbitmq
+  MassTransit__RabbitMq__Username:  guest
+  MassTransit__RabbitMq__Password:  guest
+
+services:
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"    
+      - "15672:15672"  
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    healthcheck:
+      test: ["CMD", "rabbitmqctl", "status"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  mongo:
+    image: mongo:7
+    container_name: mongo
+    ports:
+      - "27018:27017"
+    volumes:
+      - mongo_data:/data/db
+    environment:
+      MONGO_INITDB_DATABASE: casesDb
+
+  frontend:
+    build:
+      context: ./Front-End
+      dockerfile: Dockerfile
+    image: ai-aidedconsultantplatform-frontend:latest
+    ports:
+      - "3000:80"
+    depends_on:
+      - gateway
+
+  cases:
+    build:
+      context: ./Back-End
+      dockerfile: Services/Case-Service/Dockerfile
+    ports:
+      - "5010:8080"
+    volumes:
+      - ./Back-End:/src:delegated
+      - ~/.nuget/packages:/root/.nuget/packages:delegated
+    environment:
+      <<: *rabbitmq-defaults
+
+      GmailOptions__Email: "mhdnoor.ali17@gmail.com"
+      GmailOptions__Password: "wiffwaiaovymmitg"
+      GmailOptions__Host: "smtp.gmail.com"
+      GmailOptions__Port: "587" 
+      ConnectionStrings__Mongo: mongodb://mongo:27017
+      Mongo__DatabaseName: casesDb
+      ASPNETCORE_ENVIRONMENT: Development
+      DOTNET_USE_POLLING_FILE_WATCHER: "1"
+    depends_on:
+      - mongo
+      - rabbitmq
+
+  consultants:
+    build:
+      context: ./Back-End
+      dockerfile: Services/Consultant-Service/Dockerfile
+    ports:
+      - "5020:8080"
+    volumes:
+      - ./Back-End:/src:delegated
+      - ~/.nuget/packages:/root/.nuget/packages:delegated
+    environment:
+      <<: *rabbitmq-defaults
+      ConnectionStrings__Mongo: mongodb://mongo:27017
+      CaseService__BaseUrl: http://cases:8080
+      Mongo__DatabaseName: consultantsDb
+    depends_on:
+      - mongo
+      - rabbitmq
+
+  auth:
+    build:
+      context: ./Back-End
+      dockerfile: Services/Auth-Service/Dockerfile
+    volumes:
+      - ./Back-End:/src:delegated
+      - ~/.nuget/packages:/root/.nuget/packages:delegated
+    ports:
+      - "5030:8080"
+    environment:
+      <<: *rabbitmq-defaults
+      ConnectionStrings__Mongo: mongodb://mongo:27017
+      Mongo__DatabaseName: authDb
+      DOTNET_USE_POLLING_FILE_WATCHER: "1"
+
+    depends_on:
+      - mongo
+      - rabbitmq
+
+  gateway:
+    build:
+      context: ./Back-End                 
+      dockerfile: Gateway/Dockerfile
+    ports:
+      - "5100:8080"
+    volumes:
+      - ./Back-End:/src:delegated
+      - ~/.nuget/packages:/root/.nuget/packages:delegated
+    environment:
+      <<: *rabbitmq-defaults
+      ASPNETCORE_ENVIRONMENT: Development
+      DOTNET_USE_POLLING_FILE_WATCHER: "1"
+    depends_on:
+      - rabbitmq
+      - cases
+      - consultants
+      - auth
+      
+  
+  ai:
+    build: 
+      context: ./Back-End/Services/AI-Service
+      dockerfile:  dockerfile
+    ports:
+      - "5040:8080"
+    env_file:
+      - ./Back-End/Services/AI-Service/.env.common
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      cases:
+        condition: service_started
+      embedding:
+        condition: service_started
+    volumes:
+      - ./Back-End/Services/AI-Service:/app
+    working_dir: /app
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8080 --reload
+    environment:
+      - PYTHONUNBUFFERED=1
+    
+  embedding:
+    build: 
+      context: ./Back-End/Services/Embedding-Service
+      dockerfile:  dockerfile
+    ports:
+      - "5050:8080"
+    depends_on:
+      - rabbitmq
+      - cases
+    volumes:
+      - ./Back-End/Services/Embedding-Service:/app
+    working_dir: /app
+    command: uvicorn main:app --host 0.0.0.0 --port 8080 --reload
+    env_file:
+      - ./Back-End/Services/Embedding-Service/.env.common
+    environment:
+      - PYTHONUNBUFFERED=1
+
+volumes:
+  mongo_data:
+  pip_cache:
+
