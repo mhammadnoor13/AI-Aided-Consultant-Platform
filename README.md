@@ -104,14 +104,16 @@ The recommended local structure is:
 
 ```text
 AI-Aided-Consultant-Platform/
-├── ai-aided-consultant-platform/     # main repository: documentation and orchestration
+├── docker-compose.yml
 ├── Front-End/
-├── APIGateway/
-├── Auth-Service/
-├── Case-Service/
-├── Consultant-Service/
-├── AI-Service/
-└── Embedding-Service/
+└── Back-End/
+    ├── Gateway/
+    └── Services/
+        ├── Auth-Service/
+        ├── Case-Service/
+        ├── Consultant-Service/
+        ├── AI-Service/
+        └── Embedding-Service/
 ```
 
 The ai-aided-consultant-platform repository contains the Docker Compose configuration used to run the full system locally. The other directories contain the source code of the individual services.
@@ -120,19 +122,17 @@ Clone the main repository first:
 
 ``` bash
 git clone https://github.com/mhammadnoor13/AI-Aided-Consultant-Platform.git
-```
+cd AI-Aided-Consultant-Platform
 
-Then clone each service repository inside the same workspace folder:
+mkdir -p Back-End/Services
 
-``` bash
-
-git clone https://github.com/mhammadnoor13/Front-End.git
-git clone https://github.com/mhammadnoor13/APIGateway.git
-git clone https://github.com/mhammadnoor13/Auth-Service.git
-git clone https://github.com/mhammadnoor13/Case-Service.git
-git clone https://github.com/mhammadnoor13/Consultant-Service.git
-git clone https://github.com/mhammadnoor13/AI-Service.git
-git clone https://github.com/mhammadnoor13/Embedding-Service.git
+git clone https://github.com/mhammadnoor13/AI-Consultant-Platform-Front-End.git Front-End
+git clone https://github.com/mhammadnoor13/APIGateway.git Back-End/Gateway
+git clone https://github.com/mhammadnoor13/Auth-Service.git Back-End/Services/Auth-Service
+git clone https://github.com/mhammadnoor13/Case-Service.git Back-End/Services/Case-Service
+git clone https://github.com/mhammadnoor13/Consultant-Service.git Back-End/Services/Consultant-Service
+git clone https://github.com/mhammadnoor13/AI-Service.git Back-End/Services/AI-Service
+git clone https://github.com/mhammadnoor13/Embedding-Service.git Back-End/Services/Embedding-Service
 
 ```
 

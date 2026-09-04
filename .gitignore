@@ -1,1 +1,8 @@
+# Local configuration
 .env
+.env.*
+!.env.example
+
+# Manually cloned service repositories
+/Front-End/
+/Back-End/  
