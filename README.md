@@ -88,7 +88,7 @@ At the same time, because the services must work together as one application, th
 
 | Component | Repository |
 |---|---|
-| Front-End | https://github.com/mhammadnoor13/Front-End |
+| Front-End | https://github.com/mhammadnoor13/AI-Consultant-Platform-Front-End |
 | API Gateway | https://github.com/mhammadnoor13/APIGateway |
 | Auth Service | https://github.com/mhammadnoor13/Auth-Service |
 | Case Service | https://github.com/mhammadnoor13/Case-Service |
@@ -98,7 +98,7 @@ At the same time, because the services must work together as one application, th
 
 ## 8. Local Development Setup
 
-To run the complete platform locally, all service repositories should be cloned inside the same workspace folder.
+To run the complete platform locally, all service repositories should be cloned into the paths shown below inside this repository.
 
 The recommended local structure is:
 
@@ -136,11 +136,7 @@ git clone https://github.com/mhammadnoor13/Embedding-Service.git Back-End/Servic
 
 ```
 
-After cloning all repositories, move into the main repository:
 
-``` bash
-cd Ai-Aided-Consultant-Platform
-```
 
 Build and start all services using Docker Compose:
 
