@@ -170,7 +170,7 @@ Stop all running containers:
 docker compose down
 ```
 
-## 10. Local Service URLs
+## 9. Local Service URLs
 
 After starting the system with Docker Compose, the services can be accessed locally using the following URLs:
 
